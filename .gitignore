@@ -1,0 +1,18 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# macOS Finder metadata
+.DS_Store
+
+# Environment files
+.env
+*.env
+
+# Ignore data folders and contents
+/Data/JPG/
+/Data/DirtyData/
