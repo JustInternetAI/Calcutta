@@ -16,3 +16,7 @@ __pycache__/
 # Ignore data folders and contents
 /Data/JPG/
 /Data/DirtyData/
+
+
+# Ignore pickle data files
+*.pkl
