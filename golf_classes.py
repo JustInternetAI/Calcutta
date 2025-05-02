@@ -1,9 +1,55 @@
 # golf_classes.py
 
+import numpy as np
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+
+
 class Player:
     def __init__(self, name):
         self.name = name
-        self.rounds = []  # List of PlayerRoundInfo objects
+        self.rounds = []
+        self._stableford_stats = None  # lazy cache
+
+    def compute_stableford_stats(self, scoring_func):
+        """
+        Compute and cache the player's Stableford scores using a provided scoring function.
+        
+        Args:
+            scoring_func: a function that takes a PlayerRoundInfo object and returns a Stableford score
+        """
+        scores = [scoring_func(rnd) for rnd in self.rounds]
+        scores = [s for s in scores if s is not None]
+
+        if scores:
+            avg = np.mean(scores)
+            std = np.std(scores)
+        else:
+            avg = std = 0.0
+
+        self._stableford_stats = {
+            "scores": scores,
+            "average": avg,
+            "stddev": std
+        }
+
+    @property
+    def stableford_average(self):
+        if self._stableford_stats is None:
+            raise ValueError("Stableford stats not computed. Call compute_stableford_stats(scoring_func) first.")
+        return self._stableford_stats["average"]
+
+    @property
+    def stableford_stddev(self):
+        if self._stableford_stats is None:
+            raise ValueError("Stableford stats not computed. Call compute_stableford_stats(scoring_func) first.")
+        return self._stableford_stats["stddev"]
+
+    @property
+    def stableford_scores(self):
+        if self._stableford_stats is None:
+            raise ValueError("Stableford stats not computed. Call compute_stableford_stats(scoring_func) first.")
+        return self._stableford_stats["scores"]
 
 class PlayerRoundInfo:
     def __init__(self, player, tournament_name, round_number, handicap, tee, hole_scores, total, net):
