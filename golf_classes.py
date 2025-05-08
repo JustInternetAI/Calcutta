@@ -52,7 +52,7 @@ class Player:
         return self._stableford_stats["scores"]
 
 class PlayerRoundInfo:
-    def __init__(self, player, tournament_name, round_number, handicap, tee, hole_scores, total, net):
+    def __init__(self, player, tournament_name, round_number, handicap, tee, hole_scores, total, net, date=None):
         self.player = player
         self.tournament_name = tournament_name
         self.round_number = round_number
@@ -61,6 +61,7 @@ class PlayerRoundInfo:
         self.hole_scores = hole_scores  # List of 18 scores
         self.total = total
         self.net = net
+        self.date = date  
 
 class Tournament:
     def __init__(self, name):
