@@ -61,7 +61,8 @@ class PlayerRoundInfo:
         self.hole_scores = hole_scores  # List of 18 scores
         self.total = total
         self.net = net
-        self.date = date  
+        self.date = date
+        self.duplicate = False  
 
 class Tournament:
     def __init__(self, name):
