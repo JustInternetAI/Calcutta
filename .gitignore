@@ -20,3 +20,4 @@ __pycache__/
 
 # Ignore pickle data files
 *.pkl
+Data/.~lock.cleaned_hole_by_hole_2024.xlsx#
