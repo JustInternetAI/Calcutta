@@ -1,6 +1,18 @@
 # golf_utils.py
 import pickle
 from difflib import get_close_matches, SequenceMatcher
+import sys
+from pathlib import Path
+import importlib
+import pandas as pd
+
+# Reload golf_classes FIRST
+import golf_classes
+importlib.reload(golf_classes)
+
+# THEN import the class definitions
+from golf_classes import Player, PlayerRoundInfo, Tournament, Round, MMTeam, CTeam
+
 
 def compute_all_sandbag_factors(players, min_rounds=5, scale_factor=0.5):
     """
@@ -12,9 +24,17 @@ def compute_all_sandbag_factors(players, min_rounds=5, scale_factor=0.5):
         scale_factor (float): Dampening factor for small sample sizes.
     """
     print(f"Calculating {len(players)} players")
+    errorCount = 0
+    passCount = 0
     for player in players.values():
         player.compute_sand_bag_factor(min_rounds=min_rounds, scale_factor=scale_factor)
+        if player.sand_bag_factor is None:
+            errorCount = errorCount + 1
+        else:
+            passCount = passCount + 1
         #print(f"Name : {player.name}, SB Factor: {player.sand_bag_factor}")
+
+    return passCount, errorCount
 
 
 
@@ -88,5 +108,39 @@ def get_close_player_matches(name, players, n=5, cutoff=0.7):
 
     scored_matches.sort(reverse=True, key=lambda x: x[0])
     return scored_matches[:n]
+
+
+def rebind_team_players(players, mm_teams, c_teams):
+    """
+    Rebind Player objects in mm_teams and c_teams to the canonical Player instances from `players`.
+
+    Args:
+        players (dict[str, Player]): Canonical mapping of player name to Player object.
+        mm_teams (dict[str, MMTeam]): Mapping of team name to MMTeam object.
+        c_teams (dict[str, CTeam]): Mapping of team name to CTeam object.
+    """
+    fix_count = 0
+    for mm_team in mm_teams.values():
+        fixed_players = []
+        for player in mm_team.players:
+            canonical = players.get(player.name)
+            if canonical and canonical is not player:
+                fix_count += 1
+            fixed_players.append(canonical or player)
+        mm_team.players = fixed_players
+
+    for c_team in c_teams.values():
+        for i, mm_team in enumerate(c_team.mm_teams):
+            if isinstance(mm_team, MMTeam):
+                fixed_mm_players = []
+                for player in mm_team.players:
+                    canonical = players.get(player.name)
+                    if canonical and canonical is not player:
+                        fix_count += 1
+                    fixed_mm_players.append(canonical or player)
+                mm_team.players = fixed_mm_players
+                c_team.mm_teams[i] = mm_team  # reassign to be safe
+
+    print(f"🔁 Rebound {fix_count} player references to canonical Player objects.")
     
 

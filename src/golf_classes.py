@@ -32,7 +32,7 @@ class Player:
             self.sand_bag_factor = delta
         else:
             self.sand_bag_factor = None
-            print(f"Error in SB F : {self.name}, tournments : {len(tournament_scores)}, casual: {len(casual_scores)} ")
+            #print(f"Error in SB F : {self.name}, tournments : {len(tournament_scores)}, casual: {len(casual_scores)} ")
 
 
 class PlayerRoundInfo:
