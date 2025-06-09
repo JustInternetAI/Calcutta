@@ -14,25 +14,37 @@ class Player:
     def compute_sand_bag_factor(self, min_rounds=5, scale_factor=0.5):
         """
         Compute sand_bag_factor for the Player.
+        Only uses completed rounds with a numeric net score.
         If the number of tournament or casual rounds is below min_rounds,
         scale the result by scale_factor.
         """
-        tournament_scores = [r.net for r in self.rounds if r.tournament_flag and r.net is not None]
-        casual_scores = [r.net for r in self.rounds if not r.tournament_flag and r.net is not None]
-        #print(f'player: {self.name}, tourments : {len(tournament_scores)}, casual_scores : {len(casual_scores)}')
+        # Only include rounds that are completed and have a numeric net
+        tournament_scores = [
+            r.net for r in self.rounds
+            if r.tournament_flag
+            and getattr(r, "completed", False)
+            and isinstance(r.net, (int, float))
+        ]
+        casual_scores = [
+            r.net for r in self.rounds
+            if not r.tournament_flag
+            and getattr(r, "completed", False)
+            and isinstance(r.net, (int, float))
+        ]
 
         if tournament_scores and casual_scores:
             mean_tourn = sum(tournament_scores) / len(tournament_scores)
             mean_casual = sum(casual_scores) / len(casual_scores)
             delta = mean_tourn - mean_casual
 
+            # Dampen if either category has too few rounds
             if len(tournament_scores) < min_rounds or len(casual_scores) < min_rounds:
-                delta *= scale_factor  # dampen due to insufficient data
+                delta *= scale_factor
 
             self.sand_bag_factor = delta
         else:
+            # Not enough data in one or both categories
             self.sand_bag_factor = None
-            #print(f"Error in SB F : {self.name}, tournments : {len(tournament_scores)}, casual: {len(casual_scores)} ")
 
 
 class PlayerRoundInfo:
